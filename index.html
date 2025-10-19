@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta property="og:title" content="LID parser">
+	<meta property="og:description" content="LID parser to create LID arrays for my artificial life project">
+    <title>LID parser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .array-container {
+            display: grid;
+            grid-template-columns: 30px repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .array-row {
+            display: contents;
+        }
+        .row-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #666;
+            background-color: #f0f0f0;
+            border-radius: 3px;
+            padding: 2px;
+        }
+        .array-cell {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .array-cell input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #aaa;
+            border-radius: 3px;
+            text-align: center;
+            box-sizing: border-box;
+            min-width: 0;
+            resize: horizontal;
+            overflow: auto;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .export-container {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .export-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LID parser</h1>
+        
+        <div class="controls">
+            <button id="resetBtn">Clear all</button>
+        </div>
+        
+        <div class="array-container" id="arrayContainer">
+        </div>
+        
+        <div class="export-container">
+            <div class="export-controls">
+                <button id="exportBtn">Export array</button>
+            </div>
+            <textarea id="exportOutput" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const arrayContainer = document.getElementById('arrayContainer');
+            const exportBtn = document.getElementById('exportBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const exportOutput = document.getElementById('exportOutput');
+            
+            let arrayData = Array(32).fill().map(() => Array(4).fill(0));
+            
+            function renderArray() {
+                arrayContainer.innerHTML = '';
+                
+                for (let i = 0; i < 32; i++) {
+                    const rowNumber = document.createElement('div');
+                    rowNumber.className = 'row-number';
+                    rowNumber.textContent = i+1;
+                    arrayContainer.appendChild(rowNumber);
+                    
+                    for (let j = 0; j < 4; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'array-cell';
+                        
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.value = arrayData[i][j];
+                        input.dataset.row = i;
+                        input.dataset.col = j;
+                        
+                        input.style.width = '60px';
+                        
+                        input.addEventListener('input', function() {
+                            const row = parseInt(this.dataset.row);
+                            const col = parseInt(this.dataset.col);
+                            arrayData[row][col] = parseInt(this.value) || 0;
+                        });
+                        
+                        cell.appendChild(input);
+                        arrayContainer.appendChild(cell);
+                    }
+                }
+            }
+            
+            function exportArray() {
+                exportOutput.value = JSON.stringify(arrayData).replace(/\],\[/g, '],\n[');
+            }
+            
+            function resetArray() {
+                if (confirm('Are you sure you want to reset the array?')) {
+                    arrayData = Array(32).fill().map(() => Array(4).fill(0));
+                    renderArray();
+                }
+            }
+            
+            exportBtn.addEventListener('click', exportArray);
+            resetBtn.addEventListener('click', resetArray);
+            
+            renderArray();
+        });
+    </script>
+</body>
+</html>
